@@ -9,6 +9,8 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///blogdata.sqlite3"
     db.init_app(app)
 
+    app.secret_key = 'kkkuuuiii' 
+
     app.app_context().push()
 
     return app
