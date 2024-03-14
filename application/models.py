@@ -8,7 +8,7 @@ class User(db.Model):
     username = db.Column(db.String(15), nullable=False, unique=True)
     password = db.Column(db.String(100), nullable=False)
     profile_pic = db.Column(db.String(200), nullable=True)
-    # blogs = db.relationship('Blog', backref='parent')
+    blogs = db.relationship('Blog', backref='author')
 
     def set_password(self, password):
         self.password = generate_password_hash(password)

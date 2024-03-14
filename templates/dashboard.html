@@ -1,3 +1,30 @@
-Feed!
-<h1>Welcome {{ username }}!</h1>
-<a href="{{ url_for('logout') }}">LogOut!</a>
+{% extends "base.html" %} {% block content %}
+<div class="container mt-5">
+  <h1>Welcome {{ username }}!</h1>
+  <a href="{{ url_for('logout') }}">LogOut!</a>
+  <a class="btn btn-primary" href="{{ url_for('create_blog' )}}"
+    >Create a New Blog!!</a
+  >
+  <div class="row">
+    {% for blog in blogs %}
+    <div class="col-md-4">
+      <div class="card mt-3">
+        {% if blog.image_url %}
+        <img
+          src="{{ url_for('static', filename='images/' + blog.image_url ) }}"
+          alt="This is supposed to be blog image"
+          class="card-img-top"
+        />
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title">{{ blog.title }}</h5>
+          <a href="{{ url_for('blog', id=blog.id)}}" class="btn btn-primary"
+            >Read More</a
+          >
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

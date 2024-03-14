@@ -11,6 +11,8 @@ def create_app():
 
     app.secret_key = 'kkkuuuiii' 
 
+    app.config['UPLOAD_FOLDER'] = 'static/images'
+
     app.app_context().push()
 
     return app

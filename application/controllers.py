@@ -53,6 +53,58 @@ def logout():
 def dashboard():
     if 'username' not in session:
         return redirect(url_for('login'))
-    return render_template('dashboard.html', username = session['username'])
+    blogs = Blog.query.all()
+    return render_template('dashboard.html', username = session['username'], blogs=blogs)
 
-# flash, logout left
+import os
+from werkzeug.utils import secure_filename
+
+@app.route('/create_blog', methods=['GET', 'POST'])
+def create_blog():
+    user = User.query.filter_by(username=session['username']).first() #to get the current logged in user
+
+    if request.method == 'POST':
+        # get the blog details from the form present in the template
+        title = request.form['title'] 
+        content = request.form['content']
+        image = request.files['image']
+        if image:
+            # to get the filename of the image
+            filename = secure_filename(image.filename)
+            # to save the image in the folder static/images
+            image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        else:
+            filename=None
+
+        # to make a new record of Blog Table
+        new_blog = Blog(title=title, content = content, image_url=filename, user_id=user.id)
+
+        db.session.add(new_blog)
+        db.session.commit()
+
+        return redirect(url_for('blog', id=new_blog.id))
+    
+    return render_template('create_blog.html')
+
+@app.route('/blog/<int:id>')
+def blog(id):
+    blog = Blog.query.get(id)
+    return render_template('blog.html', blog=blog)
+
+@app.route('/blog/delete/<int:id>', methods=['POST'])
+def delete_blog(id):
+    blog = Blog.query.get(id)
+    db.session.delete(blog)
+    db.session.commit()
+    return redirect(url_for('dashboard'))
+
+@app.route('/blog/edit/<int:id>', methods=['GET', 'POST'])
+def edit_blog(id):
+    blog = Blog.query.get(id)
+    if request.method=='POST':
+        blog.title = request.form['title']
+        blog.content = request.form['content']
+        db.session.commit()
+        return redirect(url_for('blog', id=blog.id))
+    return render_template('edit_blog.html', blog=blog)
+
