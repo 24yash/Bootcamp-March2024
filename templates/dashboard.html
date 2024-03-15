@@ -1,8 +1,33 @@
 {% extends "base.html" %} {% block content %}
 <div class="container mt-5">
   <h1>Welcome {{ username }}!</h1>
-  <a href="{{ url_for('logout') }}">LogOut!</a>
-  <a class="btn btn-primary" href="{{ url_for('create_blog' )}}"
+  <a class="btn btn-danger" href="{{ url_for('logout') }}">LogOut!</a>
+
+  <a class="btn btn-info" href="{{url_for('user_profile', username=username)}}"
+    >View Profile</a
+  >
+
+  <form action="{{url_for('search')}}" method="POST">
+    <input
+      class="mt-4"
+      type="search"
+      placeholder="Search for Blogs"
+      name="search_query"
+    />
+    <button type="submit" class="btn btn-outline-success">Search</button>
+  </form>
+
+  <form action="{{url_for('user_search')}}" method="POST">
+    <input
+      class="mt-2"
+      type="search"
+      placeholder="Search for Users"
+      name="search_query"
+    />
+    <button type="submit" class="btn btn-outline-success">Search</button>
+  </form>
+
+  <a class="btn btn-primary mt-3" href="{{ url_for('create_blog' )}}"
     >Create a New Blog!!</a
   >
   <div class="row">
@@ -27,4 +52,20 @@
     {% endfor %}
   </div>
 </div>
+
+<div>
+  {% if users|length>0 %}
+  <h1>Search results for Users</h1>
+  <ol>
+    {% for user in users %}
+    <li>
+      <a href="{{url_for('user_profile', username=user.username)}}">
+        {{user.username}}</a
+      >
+    </li>
+    {% endfor %}
+  </ol>
+  {% endif %}
+</div>
+
 {% endblock %}

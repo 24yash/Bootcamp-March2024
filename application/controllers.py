@@ -56,6 +56,22 @@ def dashboard():
     blogs = Blog.query.all()
     return render_template('dashboard.html', username = session['username'], blogs=blogs)
 
+from sqlalchemy import or_
+
+# user provides an input and we need to match the records based on the input and show the results to the user
+@app.route('/search', methods=['POST'])
+def search():
+    search_query = request.form['search_query']
+    blogs = Blog.query.filter(or_(Blog.title.like(f'%{search_query}%'),Blog.content.like(f'%{search_query}%'))).all()
+    return render_template('dashboard.html', username = session['username'], blogs=blogs)
+
+@app.route('/user_search', methods=['POST'])
+def user_search():
+    search_query = request.form['search_query']
+    users = User.query.filter(User.username.like(f'%{search_query}%')).all()
+    return render_template('dashboard.html', username = session['username'], users=users)
+
+
 import os
 from werkzeug.utils import secure_filename
 
@@ -123,8 +139,9 @@ def user_profile(username):
         return render_template('user_profile.html', user=user, blogs=blogs, followers=user.followers(), following=user.following(), number_of_blogs=number_of_blogs, is_self=True)
         # is_self is true when The current user is viewing their own profile
     else:
+        # i am yash logged in my app and is viewing tejaswin's profile i want to check if yash has followed tejaswin or not 
         # The current user is viewing someone else's profile
-        is_following = False
+        # is_following = False
         current_user = User.query.filter_by(username=session['username']).first()
         is_following=current_user.is_following(user)
         number_followers=len(user.followers())
@@ -148,3 +165,18 @@ def unfollow_route(username):
     current_user = User.query.filter_by(username=session['username']).first() # logged in user
     current_user.unfollow(user_to_unfollow)
     return redirect(url_for('user_profile', username=username))
+
+
+# tested with thunder client
+@app.route('/user/delete/<username>', methods=['POST'])
+def delete_user(username):
+    user = User.query.filter_by(username = username).first()
+    # something sshould happen here
+    Blog.query.filter_by(user_id=user.id).delete()
+    Follow.query.filter(or_(Follow.follower_id==user.id, Follow.followed_id==user.id)).delete()
+    db.session.delete(user)
+    db.session.commit()
+    return "deleted"
+
+# in update user that will be same like blog nothing different there just change username/password in the existing record present in the user table
+# books in your sections. when you try to delete your section that contains books. then you firts have to delete those books already present in your sections

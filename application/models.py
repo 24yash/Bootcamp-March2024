@@ -31,6 +31,11 @@ class User(db.Model):
         follow = Follow.query.filter(Follow.follower_id==self.id, Follow.followed_id==other_user.id).first()
         return follow is not None
 
+        # if follow:
+        #   return True
+        # else:
+    #       return False
+
     # follower list and a following list using joins of User table and FOllow table. Joins on the condition that User table ID attribute is equal to Follower/Followed Id and filter the particular records in follow tables that matches the logged in user's id
     def followers(self):
         return User.query.join(Follow, Follow.follower_id==User.id).filter(Follow.followed_id==self.id).all()
