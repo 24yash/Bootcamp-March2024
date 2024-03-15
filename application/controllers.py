@@ -108,3 +108,43 @@ def edit_blog(id):
         return redirect(url_for('blog', id=blog.id))
     return render_template('edit_blog.html', blog=blog)
 
+@app.route('/user/<username>')
+def user_profile(username):
+    user = User.query.filter_by(username=username).first()
+    # if user is valid or not
+
+    blogs = Blog.query.filter_by(user_id=user.id).all()
+    number_of_blogs = len(blogs)
+    
+
+    # if the user page is of the logged in user or not
+    if 'username' in session and session['username'] == username:
+        # This is the case when The current user is viewing their own profile
+        return render_template('user_profile.html', user=user, blogs=blogs, followers=user.followers(), following=user.following(), number_of_blogs=number_of_blogs, is_self=True)
+        # is_self is true when The current user is viewing their own profile
+    else:
+        # The current user is viewing someone else's profile
+        is_following = False
+        current_user = User.query.filter_by(username=session['username']).first()
+        is_following=current_user.is_following(user)
+        number_followers=len(user.followers())
+        number_following= len(user.following())
+        print(user.followers())
+        print(user.following())
+        print(blogs)
+        return render_template('user_profile.html', user=user, blogs=blogs, is_self=False, is_following=is_following, followers=user.followers(), following=user.following(), number_of_blogs=number_of_blogs, number_followers=number_followers, number_following=number_following)
+        # is_self is False when The current user is viewing someone's else profile
+    
+@app.route('/follow/<username>')
+def follow_route(username):
+    user_to_follow = User.query.filter_by(username=username).first() # who we are trying to follow
+    current_user = User.query.filter_by(username=session['username']).first() # logged in user
+    current_user.follow(user_to_follow)
+    return redirect(url_for('user_profile', username=username))
+
+@app.route('/unfollow/<username>')
+def unfollow_route(username):
+    user_to_unfollow = User.query.filter_by(username=username).first() # who we are trying to follow
+    current_user = User.query.filter_by(username=session['username']).first() # logged in user
+    current_user.unfollow(user_to_unfollow)
+    return redirect(url_for('user_profile', username=username))

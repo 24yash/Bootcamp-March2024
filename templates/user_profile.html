@@ -1,0 +1,57 @@
+{% extends "base.html" %} {% block content %}
+<!-- the profile pic of the user -->
+<h1>{{user.username}}'s Profile</h1>
+<h4>Number of Blogs: {{number_of_blogs}}</h4>
+{% if not is_self %} No. of followers: {{number_followers}} No. of following:
+{{number_following}} {% if is_following %}
+<a href="{{ url_for('unfollow_route', username=user.username) }}"> Unfollow</a>
+{% else %}
+<a href="{{ url_for('follow_route', username=user.username) }}">FOllow</a>
+{% endif %} {% else %}
+<h4>FOllowers:</h4>
+<ul>
+  {% for follower in followers %}
+
+  <li>
+    <a href="{{ url_for('user_profile', username=follower.username) }}"
+      >{{follower.username}}</a
+    >
+  </li>
+  {% endfor %}
+</ul>
+<h4>FOllowing:</h4>
+<ul>
+  {% for followed in following %}
+  <li>
+    <a href="{{ url_for('user_profile', username=followed.username) }}"
+      >{{followed.username}}</a
+    >
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+<div class="container mt-5">
+  <div class="row">
+    <h1>Blogs</h1>
+    {% for blog in blogs %}
+    <div class="col-md-4">
+      <div class="card mt-3">
+        {% if blog.image_url %}
+        <img
+          src="{{ url_for('static', filename='images/' + blog.image_url ) }}"
+          alt="This is supposed to be blog image"
+          class="card-img-top"
+        />
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title">{{ blog.title }}</h5>
+          <a href="{{ url_for('blog', id=blog.id)}}" class="btn btn-primary"
+            >Read More</a
+          >
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
