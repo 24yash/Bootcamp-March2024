@@ -105,7 +105,25 @@ def create_blog():
 @app.route('/blog/<int:id>')
 def blog(id):
     blog = Blog.query.get(id)
-    return render_template('blog.html', blog=blog)
+    current_user = User.query.filter_by(username=session['username']).one()
+    print(current_user.has_liked(blog))
+    print(current_user)
+    print(session['username'])
+    return render_template('blog.html', blog=blog, current_user=current_user)
+
+@app.route('/blog/<int:id>/like', methods=['POST'])
+def like_blog(id):
+    blog = Blog.query.get(id)
+    current_user = User.query.filter_by(username=session['username']).one()
+    current_user.like(blog)
+    return redirect(url_for('blog', id=id))
+
+@app.route('/blog/<int:id>/unlike', methods=['POST'])
+def unlike_blog(id):
+    blog = Blog.query.get(id)
+    current_user = User.query.filter_by(username=session['username']).one()
+    current_user.unlike(blog)
+    return redirect(url_for('blog', id=id))
 
 @app.route('/blog/delete/<int:id>', methods=['POST'])
 def delete_blog(id):

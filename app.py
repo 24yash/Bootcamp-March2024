@@ -1,6 +1,9 @@
 from flask import Flask 
 from application.database import db
 
+from flask_restful import Api
+from application.resources import *
+
 app = None 
 
 def create_app():
@@ -14,6 +17,11 @@ def create_app():
     app.config['UPLOAD_FOLDER'] = 'static/images'
 
     app.app_context().push()
+
+    api = Api(app)
+
+    api.add_resource(HelloWorld, '/api/helloworld')
+    api.add_resource(BlogAPI, '/api/blog', '/api/blog/<int:id>')
 
     return app
 

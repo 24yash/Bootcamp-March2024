@@ -8,13 +8,45 @@ class Follow(db.Model):
     follower_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
     followed_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
 
+
+# Association Table
+class Like(db.Model):
+    __tablename__ = 'likes'
+    # which user has liked which blog
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    blog_id = db.Column(db.Integer, db.ForeignKey('blog.id'), primary_key=True)
+    # comment atrribute string 
+    # rating int attribute 1-5
+
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(15), nullable=False, unique=True)
     password = db.Column(db.String(100), nullable=False)
     profile_pic = db.Column(db.String(200), nullable=True)
-    blogs = db.relationship('Blog', backref='author')
+    blogs = db.relationship('Blog', backref='author') # one to many 
+    liked_blogs = db.relationship('Blog', backref='likers', secondary='likes') # many to many
+    # secondary=likes (likes is the tablename) This basically specifies the association table that is used for for this relationship.
+    # object/record/user in table User can access all liked blogs by them in this liked_table attribute
+    # it also create a attribute likers for an object in Table Blog to use to find all the users who has liked that particular blog 
+
+    # 1 is viewing a blog 1 
+
+    def like(self, blog):
+        like = Like(user_id=self.id, blog_id=blog.id)
+        db.session.add(like)
+        db.session.commit()
+
+    def unlike(self, blog):
+        like = Like.query.filter(Like.user_id==self.id, Like.blog_id==blog.id).one()
+        db.session.delete(like)
+        db.session.commit()
+
+    def has_liked(self, blog):
+        return Like.query.filter_by(user_id=self.id, blog_id=blog.id).count() > 0
+    
+
+    # def liked_blogs
 
     def follow(self, other_user):
         # self is the current logged in user who follows some other_user
@@ -56,3 +88,6 @@ class Blog(db.Model):
     image_url = db.Column(db.String(200), nullable=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
+
+
+    # def likers()
