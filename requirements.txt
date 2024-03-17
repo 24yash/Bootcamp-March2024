@@ -3,3 +3,5 @@ flask-sqlalchemy==3.1.1
 DateTime==5.4
 flask-login==0.6.3
 flask-restful==0.3.10
+matplotlib==3.8.3
+pandas==2.2.1

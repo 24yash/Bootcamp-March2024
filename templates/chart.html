@@ -1,0 +1,11 @@
+{% extends "base.html" %} {% block content %}
+
+<div>
+  <h1>Chart</h1>
+  <img
+    src="{{url_for('static', filename=chart_url )}}"
+    alt="Blog Enagement Chart"
+  />
+</div>
+
+{% endblock %}

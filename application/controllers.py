@@ -54,7 +54,24 @@ def dashboard():
     if 'username' not in session:
         return redirect(url_for('login'))
     blogs = Blog.query.all()
-    return render_template('dashboard.html', username = session['username'], blogs=blogs)
+    return render_template('dashboard.html', username = session['username'], blogs=blogs, only=False)
+
+@app.route('/dashboard/following')
+def dashboard_following():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    current_user = User.query.filter_by(username=session['username']).first()
+
+    following_users = [user.id for user in current_user.following()]
+
+    blogs = Blog.query.filter(Blog.user_id.in_(following_users)).all()
+
+    # blogs = Blog.query.all()
+    
+    return render_template('dashboard.html', username = session['username'], blogs=blogs, only=True)
+# only here means if blogs are being sent of only users we follow or not 
+
 
 from sqlalchemy import or_
 
@@ -105,6 +122,8 @@ def create_blog():
 @app.route('/blog/<int:id>')
 def blog(id):
     blog = Blog.query.get(id)
+    if blog is None:
+        return "Blog does not exist!"
     current_user = User.query.filter_by(username=session['username']).one()
     print(current_user.has_liked(blog))
     print(current_user)
@@ -198,3 +217,34 @@ def delete_user(username):
 
 # in update user that will be same like blog nothing different there just change username/password in the existing record present in the user table
 # books in your sections. when you try to delete your section that contains books. then you firts have to delete those books already present in your sections
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+
+@app.route('/chart')
+def chart():
+    # analyse the blog engagements
+    # x axis -> blog title
+    # y axis -> number of likes (blog engagement)
+
+    blog_likes = []
+    for blog in Blog.query.all():
+        blog_likes.append((blog.title, len(blog.likers)))
+
+    # blog_likes = [(blog.title, len(blog.likers)) for blog in Blog.query.all()]
+
+    df_blog_likes = pd.DataFrame(blog_likes, columns =['Blog', 'Likes'])
+
+    plt.figure(figsize=(10,5))
+    plt.bar(df_blog_likes['Blog'], df_blog_likes['Likes'])
+    plt.title('Blog Engagement Stats!')
+    plt.xlabel('Blog Title')
+    plt.ylabel('Number of Likes')
+
+    plt.savefig('static/charts/blog_engagement.png')
+
+    plt.clf()
+    # clear figure
+
+    return render_template('chart.html', chart_url='/charts/blog_engagement.png')

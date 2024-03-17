@@ -7,6 +7,15 @@
     >View Profile</a
   >
 
+  {% if not only %}
+  <a href="{{ url_for('dashboard_following') }}" class="btn btn-primary">
+    Show Blogs from Followed Users
+  </a>
+  {% else %}
+  <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+    Show Blogs from All Users
+  </a>
+  {% endif %}
   <form action="{{url_for('search')}}" method="POST">
     <input
       class="mt-4"
